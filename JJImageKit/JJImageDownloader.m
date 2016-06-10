@@ -9,6 +9,11 @@
 #import "JJImageDownloader.h"
 #import "NSURL+JJImageCache.h"
 
+typedef NS_ENUM(NSInteger, JJFileType) {
+    JJFileTypeJPEG,
+    JJFileTypePDF
+};
+
 
 @interface JJImageDownloader ()
 
@@ -43,7 +48,19 @@
 
 #pragma mark - Data Methods
 
-- (NSMutableURLRequest *)getImageURL:(NSURL *)url withCompletionHandler:(JJImageViewerDownloadResponse)block
+- (NSMutableURLRequest *)getImageURL:(NSURL *)url withCompletionHandler:(JJImageViewerDownloadImageResponse)block
+{
+   return [self getFileURL:url fileType:JJFileTypeJPEG withCompletionHandler:block];
+}
+
+
+- (NSMutableURLRequest *)getPdfURL:(NSURL *)url withCompletionHandler:(JJImageViewerDownloadFileResponse)block
+{
+    return [self getFileURL:url fileType:JJFileTypePDF withCompletionHandler:block];
+}
+
+
+- (NSMutableURLRequest *)getFileURL:(NSURL *)url fileType:(JJFileType)fileType withCompletionHandler:(void(^)(NSURL *url, id result))block
 {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     
@@ -54,10 +71,20 @@
     // First we check if there is a local file
     if ([[NSFileManager defaultManager] fileExistsAtPath:url.temporaryLocalURL.path]) {
         
-        UIImage *image = [UIImage imageWithContentsOfFile:url.temporaryLocalURL.path];
+        id result;
+        
+        switch (fileType) {
+            case JJFileTypeJPEG:
+                result = [UIImage imageWithContentsOfFile:url.temporaryLocalURL.path];
+                break;
+            case JJFileTypePDF:
+                result = url.temporaryLocalURL;
+                break;
+        }
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             if (block) {
-                block(url, image);
+                block(url, result);
             }
         });
         
@@ -69,10 +96,9 @@
         if ([date laterDate:[[NSDate date] dateByAddingTimeInterval:-60*60*24]] != date) {
             // Perform a new look up of this image..?
             
-        #warning No handling of the cache at the moment
+            #warning No handling of the cache at the moment
             
         }
-        
         return request;
     }
     
@@ -83,16 +109,26 @@
             
             [self handleAuthentication:response];
             
-            UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:location]];
+            id result;
             
-            // Store the image off now
-            NSData * data = UIImageJPEGRepresentation(image, 0.5);
-            NSURL *temporaryURL = [url temporaryLocalURL];
-            [data writeToFile:temporaryURL.path atomically:YES];
+            switch (fileType) {
+                case JJFileTypeJPEG: {
+                    result = [UIImage imageWithData:[NSData dataWithContentsOfURL:location]];
+                    NSData * data = UIImageJPEGRepresentation(result, 0.5);
+                    NSURL *temporaryURL = [url temporaryLocalURL];
+                    [data writeToFile:temporaryURL.path atomically:YES];
+                    break;
+                }
+                case JJFileTypePDF: {
+                    [[NSFileManager defaultManager] copyItemAtURL:location toURL:[url temporaryLocalURL] error:NULL];
+                    result = url.temporaryLocalURL;
+                    break;
+                }
+            }
         
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (block) {
-                    block(url, image);
+                    block(url, result);
                 }
             });
             //    #if DEBUG

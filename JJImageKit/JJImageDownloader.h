@@ -13,7 +13,9 @@
 
 
 /// Block structure to return an image with its corresponding URL
-typedef void (^JJImageViewerDownloadResponse)(NSURL *url, UIImage *image);
+typedef void (^JJImageViewerDownloadImageResponse)(NSURL *url, UIImage *image);
+
+typedef void (^JJImageViewerDownloadFileResponse)(NSURL *url, NSURL *localUrl);
 
 
 @interface JJImageDownloader : NSObject <NSURLSessionTaskDelegate>
@@ -22,7 +24,10 @@ typedef void (^JJImageViewerDownloadResponse)(NSURL *url, UIImage *image);
 + (instancetype)sharedClient;
 
 /// Get an image with: @param url image URL \returns The NSMutableRequest object so that the owner can cancel it in flight
-- (NSMutableURLRequest *)getImageURL:(NSURL *)url withCompletionHandler:(JJImageViewerDownloadResponse)block;
+- (NSMutableURLRequest *)getImageURL:(NSURL *)url withCompletionHandler:(JJImageViewerDownloadImageResponse)block;
+
+/// Get an arbitrary file with: @param url image URL \returns The NSMutableRequest object so that the owner can cancel it in flight
+- (NSMutableURLRequest *)getPdfURL:(NSURL *)url withCompletionHandler:(JJImageViewerDownloadFileResponse)block;
 
 /// Cancels all the outstanding data downloads for the session
 - (void)cancelPendingTasks;
