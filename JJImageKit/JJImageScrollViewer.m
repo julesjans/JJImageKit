@@ -75,6 +75,7 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    [self layoutVisiblePages];
     [self didScrollToPageIndex:self.pageNumber];
     if (self.isMovingToParentViewController) {
         [self loadVisiblePage];
@@ -93,12 +94,6 @@
 {
     [super viewDidDisappear:animated];
     [[JJImageDownloader sharedClient] cancelPendingTasks];
-}
-
-- (void)viewWillLayoutSubviews
-{
-    [super viewWillLayoutSubviews];
-    [self layoutVisiblePages];
 }
 
 - (void)viewDidLayoutSubviews
@@ -145,7 +140,7 @@
 
 - (void)layoutVisiblePages
 {
-    CGRect screen = self.view.bounds;
+    CGRect screen = [[UIScreen mainScreen] bounds];
     
     CGFloat width = screen.size.width;
     CGFloat height = screen.size.height;
@@ -335,13 +330,11 @@
 {
     self.shoulStopScrollingDuringRotation = YES;
     self.pageNumberBeforeRotation = self.pageNumber;
-    
     [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
-        // Update the content offset of the scroll view as the rotation is made
-        CGPoint newOffSet = CGPointMake((size.width + (IMAGE_PADDING * 2)) * self.pageNumberBeforeRotation, 0);
+        [self layoutVisiblePages];
+        CGPoint newOffSet = CGPointMake((self.pagingScrollView.contentSize.width/self.images.count) * self.pageNumberBeforeRotation, 0);
         [self.pagingScrollView setContentOffset:newOffSet animated:NO];
-
     } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
         self.shoulStopScrollingDuringRotation = NO;
     }];
