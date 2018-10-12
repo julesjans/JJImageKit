@@ -117,7 +117,7 @@
     // If an element in the array has changed we need to update any visible & relevant views
     if (_images) {
         [images enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            if (![obj isEqual:[_images objectAtIndex:idx]]) {
+            if (![obj isEqual:[self->_images objectAtIndex:idx]]) {
                 for (JJImageScrollCell *page in self.visiblePages) {
                     if (page.index == idx) {
                         [page configureWith:obj atIndex:idx];

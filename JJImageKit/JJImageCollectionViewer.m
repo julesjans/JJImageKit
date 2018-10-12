@@ -103,7 +103,7 @@ static NSString * const reuseIdentifier = @"Cell";
     NSMutableArray *indexesToUpdate = [NSMutableArray array];
     if (_images) {
         [images enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            if (![obj isEqual:[_images objectAtIndex:idx]]) {
+            if (![obj isEqual:[self->_images objectAtIndex:idx]]) {
                 [indexesToUpdate addObject:[NSIndexPath indexPathForItem:idx inSection:0]];
             }
         }];
