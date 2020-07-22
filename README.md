@@ -8,4 +8,4 @@ See SampleImageApp for an example.
 
 The Framework is used in: [Bowman Sculpture on the App Store](https://itunes.apple.com/jo/app/sculpture/id572536148?mt=8)
 
-![Bowman Sculpture](http://bucket-eu.julesjans.com.s3.amazonaws.com/Misc/Images/bowman-sculpture-simulator.gif)
+![Bowman Sculpture](http://bucket-uk.julesjans.com.s3.amazonaws.com/Misc/Images/bowman-sculpture-simulator.gif)
